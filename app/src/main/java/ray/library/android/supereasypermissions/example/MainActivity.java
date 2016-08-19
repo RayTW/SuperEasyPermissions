@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import ray.library.android.supereasypermissions.PermissionsHelper;
-import ray.library.android.supereasypermissions.PermissionsRequestListenerSimple;
 import ray.library.android.supereasypermissions.R;
 
 public class MainActivity extends Activity {
@@ -23,8 +22,8 @@ public class MainActivity extends Activity {
                 // 重要!! true:每次問，按過不再提醒才不再次提示, false:只請求第一次，有按過拒絕後不再次提示
                 // important!! true: every time, false:first time
 
-                PermissionsHelper.getInstance().request(MainActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionsRequestListenerSimple() {
+                PermissionsHelper.request(MainActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionsHelper.PermissionsHelperListener() {
 
                             @Override
                             public void onPermissionsResult(String permissions, boolean isGrant,
@@ -39,8 +38,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                PermissionsHelper.getInstance().request(MainActivity.this,
-                        Manifest.permission.READ_CONTACTS, new PermissionsRequestListenerSimple() {
+                PermissionsHelper.request(MainActivity.this,
+                        Manifest.permission.READ_CONTACTS, new PermissionsHelper.PermissionsHelperListener() {
 
                             @Override
                             public void onPermissionsResult(String permissions, boolean isGrant,

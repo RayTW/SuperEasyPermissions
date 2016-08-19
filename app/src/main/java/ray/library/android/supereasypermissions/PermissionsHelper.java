@@ -2,60 +2,57 @@ package ray.library.android.supereasypermissions;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 public class PermissionsHelper {
-	private static PermissionsHelper sInstance = new PermissionsHelper();
-	private PermissionsRequestProxy mPermissionsRequestProxy;
+    private static PermissionsHelper sInstance = new PermissionsHelper();
+    private PermissionsRequestProxy mPermissionsRequestProxy;
 
-	private PermissionsHelper() {
-		mPermissionsRequestProxy = new PermissionsRequestProxy();
-		PermissionsRequestActivity.setPermissionsRequestListener(mPermissionsRequestProxy);
-	}
+    private PermissionsHelper() {
+        mPermissionsRequestProxy = new PermissionsRequestProxy();
+        PermissionsRequestActivity.setPermissionsHelperListener(mPermissionsRequestProxy);
+    }
 
-	public static PermissionsHelper getInstance() {
-		return sInstance;
-	}
+    public static void request(@NonNull Activity activity, @NonNull String permission, @NonNull PermissionsHelperListener listener) {
+        sInstance.doRequest(activity, permission, listener);
+    }
 
-	public void request(Activity activity, String permission, PermissionsRequestListener listener) {
-		if (permission == null) {
+    private void doRequest(Activity activity, String permission, PermissionsHelperListener listener) {
+        if (permission == null) {
             throw new IllegalArgumentException("permission is null");
         }
-		
-		mPermissionsRequestProxy.setPermissionsRequestListener(listener);
 
-		Intent intent = new Intent(activity, PermissionsRequestActivity.class);
+        mPermissionsRequestProxy.setPermissionsHelperListener(listener);
 
-		intent.putExtra(PermissionsRequestActivity.PERMISSIONS_NAME, permission);
-		activity.startActivity(intent);
-		activity.overridePendingTransition(0, 0);
-	}
+        Intent intent = new Intent(activity, PermissionsRequestActivity.class);
 
-	private class PermissionsRequestProxy implements PermissionsRequestListener {
-		private PermissionsRequestListener mPermissionsRequestListener;
+        intent.putExtra(PermissionsRequestActivity.PERMISSIONS_NAME, permission);
+        activity.startActivity(intent);
+        activity.overridePendingTransition(0, 0);
+    }
 
-		PermissionsRequestProxy() {
-		}
+    public static interface PermissionsHelperListener {
+        public void onPermissionsResult(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog);
+    }
 
-		private void setPermissionsRequestListener(PermissionsRequestListener listener) {
-			mPermissionsRequestListener = listener;
-		}
+    private class PermissionsRequestProxy implements PermissionsHelperListener {
+        private PermissionsHelperListener mPermissionsHelperListener;
 
-		@Override
-		public void onPermissionsResult(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog) {
+        PermissionsRequestProxy() {
+        }
 
-			if (mPermissionsRequestListener != null) {
-				mPermissionsRequestListener.onPermissionsResult(permissions, isGrant, hasShowedRequestPermissionDialog);
-			}
+        private void setPermissionsHelperListener(PermissionsHelperListener listener) {
+            mPermissionsHelperListener = listener;
+        }
 
-			mPermissionsRequestListener = null;
-		}
+        @Override
+        public void onPermissionsResult(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog) {
 
-		@Override
-		public void onUnknowPermission(String permissions) {
-			if (mPermissionsRequestListener != null) {
-				mPermissionsRequestListener.onUnknowPermission(permissions);
-			}
-			mPermissionsRequestListener = null;
-		}
-	}
+            if (mPermissionsHelperListener != null) {
+                mPermissionsHelperListener.onPermissionsResult(permissions, isGrant, hasShowedRequestPermissionDialog);
+            }
+
+            mPermissionsHelperListener = null;
+        }
+    }
 }
