@@ -3,6 +3,7 @@ package ray.library.android.supereasypermissions.example;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -10,11 +11,17 @@ import ray.library.android.supereasypermissions.PermissionsHelper;
 import ray.library.android.supereasypermissions.R;
 
 public class MainActivity extends Activity {
+    private final static String TAG = RayUtility.getCurrentClassSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.d(TAG, "checkPermission,WRITE_EXTERNAL_STORAGE[" +
+                PermissionsHelper.hasGrantedPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) + "]");
+        Log.d(TAG, "checkPermission,READ_CONTACTS["+
+                PermissionsHelper.hasGrantedPermission(this, Manifest.permission.READ_CONTACTS)+"]");
 
         findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -28,7 +35,6 @@ public class MainActivity extends Activity {
                             @Override
                             public void onPermissionsResult(String permissions, boolean isGrant,
                                                             boolean hasShowedRequestPermissionDialog) {
-
                                 showRequestResultToast(permissions, isGrant, hasShowedRequestPermissionDialog);
                             }
                         });
@@ -50,6 +56,12 @@ public class MainActivity extends Activity {
             }
         });
 
+        findViewById(R.id.button3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                PermissionsHelper.startActivityAppDetails(MainActivity.this);
+            }
+        });
     }
 
     private void showRequestResultToast(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog) {
