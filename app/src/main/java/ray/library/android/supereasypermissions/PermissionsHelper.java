@@ -19,7 +19,7 @@ public class PermissionsHelper {
 
     private void doRequest(Activity activity, String permission, PermissionsHelperListener listener) {
         if (permission == null) {
-            throw new IllegalArgumentException("permission is null");
+            throw new IllegalArgumentException("permission == null");
         }
 
         mPermissionsRequestProxy.setPermissionsHelperListener(listener);
