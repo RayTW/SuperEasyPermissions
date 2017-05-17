@@ -12,6 +12,7 @@ import ray.library.android.supereasypermissions.R;
 
 public class MainActivity extends Activity {
     private final static String TAG = RayUtility.getCurrentClassSimpleName();
+    private PermissionsHelper mPermissionsHelper = new PermissionsHelper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,8 +21,8 @@ public class MainActivity extends Activity {
 
         Log.d(TAG, "checkPermission,WRITE_EXTERNAL_STORAGE[" +
                 PermissionsHelper.hasGrantedPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) + "]");
-        Log.d(TAG, "checkPermission,READ_CONTACTS["+
-                PermissionsHelper.hasGrantedPermission(this, Manifest.permission.READ_CONTACTS)+"]");
+        Log.d(TAG, "checkPermission,READ_CONTACTS[" +
+                PermissionsHelper.hasGrantedPermission(this, Manifest.permission.READ_CONTACTS) + "]");
 
         findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -29,7 +30,7 @@ public class MainActivity extends Activity {
                 // 重要!! true:每次問，按過不再提醒才不再次提示, false:只請求第一次，有按過拒絕後不再次提示
                 // important!! true: every time, false:first time
 
-                PermissionsHelper.request(MainActivity.this,
+                mPermissionsHelper.request(MainActivity.this,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE, new PermissionsHelper.PermissionsHelperListener() {
 
                             @Override
@@ -44,7 +45,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-                PermissionsHelper.request(MainActivity.this,
+                mPermissionsHelper.request(MainActivity.this,
                         Manifest.permission.READ_CONTACTS, new PermissionsHelper.PermissionsHelperListener() {
 
                             @Override
@@ -75,5 +76,10 @@ public class MainActivity extends Activity {
                 Toast.makeText(getApplicationContext(), "請至app設定開啟權限[" + permissions + "]", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override //required
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        mPermissionsHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
     }
 }

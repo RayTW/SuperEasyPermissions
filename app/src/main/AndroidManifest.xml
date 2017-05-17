@@ -3,7 +3,7 @@
     package="ray.library.android.supereasypermissions">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -20,10 +20,6 @@
         </activity>
 
 
-        <activity
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:name="ray.library.android.supereasypermissions.PermissionsRequestActivity" >
-        </activity>
     </application>
 
 </manifest>

@@ -9,27 +9,16 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 public class PermissionsHelper {
-    private static PermissionsHelper sInstance = new PermissionsHelper();
-    private PermissionsRequestProxy mPermissionsRequestProxy;
+    private final static int REQUEST = 100;
 
-    private PermissionsHelper() {
-        mPermissionsRequestProxy = new PermissionsRequestProxy();
-        PermissionsRequestActivity.setPermissionsHelperListener(mPermissionsRequestProxy);
-    }
+    private PermissionsHelperListener mPermissionsHelperListener;
+    private boolean mHasShowedRequestPermissionDialog;// 請求權限前
 
-    /**
-     * 請求權限
-     *
-     * @param activity
-     * @param permission
-     * @param listener
-     */
-    public static void request(@NonNull Activity activity, @NonNull String permission,
-                               @NonNull PermissionsHelperListener listener) {
-        sInstance.doRequest(activity, permission, listener);
+    public PermissionsHelper() {
     }
 
     /**
@@ -78,42 +67,63 @@ public class PermissionsHelper {
         }
     }
 
-    private void doRequest(Activity activity, String permission, PermissionsHelperListener listener) {
+    /**
+     * 請求權限
+     *
+     * @param activity
+     * @param permission
+     * @param listener
+     */
+    public void request(@NonNull Activity activity, @NonNull String permission,
+                        @NonNull PermissionsHelperListener listener) {
         if (permission == null) {
             throw new IllegalArgumentException("permission == null");
         }
+        mPermissionsHelperListener = listener;
+        mHasShowedRequestPermissionDialog = hasShowedRequestPermissionDialog(activity, permission);
+        requestLocationPermission(activity, permission);
+    }
 
-        mPermissionsRequestProxy.setPermissionsHelperListener(listener);
+    private void requestLocationPermission(Activity activity, String permissions) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int hasPermission = ContextCompat.checkSelfPermission(activity, permissions);
 
-        Intent intent = new Intent(activity, PermissionsRequestActivity.class);
+            if (hasPermission != PackageManager.PERMISSION_GRANTED) {
+                activity.requestPermissions(new String[]{permissions}, REQUEST);
+                return;
+            }
+        }
 
-        intent.putExtra(PermissionsRequestActivity.PERMISSIONS_NAME, permission);
-        activity.startActivity(intent);
-        activity.overridePendingTransition(0, 0);
+        onPermissionsResult(activity, permissions, true);
+    }
+
+    //TODO
+    public void onRequestPermissionsResult(Activity activity, int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQUEST) {
+            onPermissionsResult(activity, permissions[0], grantResults[0] == PackageManager.PERMISSION_GRANTED);
+        }
+    }
+
+    private void onPermissionsResult(Activity activity, String permissions, boolean isGrant) {
+        if (mPermissionsHelperListener != null) {
+            // 記錄是否有彈出過詢問使用者是否允許的dialog
+            boolean hasShowedRequestPermissionDialog = hasShowedRequestPermissionDialog(activity, permissions)
+                    | mHasShowedRequestPermissionDialog;
+
+            mPermissionsHelperListener.onPermissionsResult(permissions, isGrant, hasShowedRequestPermissionDialog);
+        }
+        mPermissionsHelperListener = null;
+    }
+
+    private boolean hasShowedRequestPermissionDialog(Activity activity, String permissions) {
+        boolean hasShowedRequestPermissionDialog = false;
+
+        hasShowedRequestPermissionDialog = ActivityCompat.shouldShowRequestPermissionRationale(activity, permissions);
+
+        return hasShowedRequestPermissionDialog;
     }
 
     public static interface PermissionsHelperListener {
         public void onPermissionsResult(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog);
-    }
-
-    private class PermissionsRequestProxy implements PermissionsHelperListener {
-        private PermissionsHelperListener mPermissionsHelperListener;
-
-        PermissionsRequestProxy() {
-        }
-
-        private void setPermissionsHelperListener(PermissionsHelperListener listener) {
-            mPermissionsHelperListener = listener;
-        }
-
-        @Override
-        public void onPermissionsResult(String permissions, boolean isGrant, boolean hasShowedRequestPermissionDialog) {
-
-            if (mPermissionsHelperListener != null) {
-                mPermissionsHelperListener.onPermissionsResult(permissions, isGrant, hasShowedRequestPermissionDialog);
-            }
-
-            mPermissionsHelperListener = null;
-        }
     }
 }
