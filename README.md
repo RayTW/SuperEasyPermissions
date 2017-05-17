@@ -10,17 +10,6 @@ dependencies {
 }
 ```
 
-AndroidManifest.xml 必須要加上以下設定
-```xml
-<uses-sdk
-        android:targetSdkVersion="23" />
-
-<activity
-     android:theme="@android:style/Theme.Translucent.NoTitleBar" 
-     android:name="ray.library.android.permissions.PermissionsRequestActivity" >
-</activity>
-```
-
 要請求單一權限，讀取聯絡人"READ_CONTACTS"時範例如下：
 
 ```code
