@@ -24,7 +24,12 @@ AndroidManifest.xml 必須要加上以下設定
 要請求單一權限，讀取聯絡人"READ_CONTACTS"時範例如下：
 
 ```code
- PermissionsHelper.request(MainActivity.this,
+public class MainActivity extends Activity {
+ private PermissionsHelper mPermissionsHelper = new PermissionsHelper();
+
+ @Override
+ protected void onCreate(Bundle savedInstanceState) {
+   mPermissionsHelper.request(MainActivity.this,
                         Manifest.permission.READ_CONTACTS, new PermissionsHelper.PermissionsHelperListener() {
 
                             @Override
@@ -41,8 +46,14 @@ AndroidManifest.xml 必須要加上以下設定
                                 								}
                             }
                         });
+                     });
+}
 
-		});
+@Override //required
+   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+      mPermissionsHelper.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+   }
+}
 ```
 
 
